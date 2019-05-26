@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,30 @@ public class StreamGroupByTest {
 		result.entrySet().stream().sorted(Map.Entry.<String,Long>comparingByValue()).forEach(a->action.put(a.getKey(), a.getValue()));
 		action.entrySet().forEach(en->System.out.println(en.getKey()+" : "+en.getValue()));
 	
+		List<Item> items = getItems();
+		// Grouping By Name 
+		Map<String, Long> counting = items.stream().collect(Collectors.groupingBy(Item::getName,Collectors.counting()));
+		counting.entrySet().forEach(act->System.out.println(act.getKey()+" : "+act.getValue()));
 		
+		// Grouping By Name with sum of Qty
+		Map<String, Integer> sum = items.stream().collect(Collectors.groupingBy(Item::getName,Collectors.summingInt(Item::getQty)));
+		sum.entrySet().forEach(act->System.out.println(act.getKey()+" : "+act.getValue()));
+		
+		// Grouping By Price
+		Map<BigDecimal, List<Item>> collect = items.stream().collect(Collectors.groupingBy(Item::getPrice));
+		collect.entrySet().forEach(act->System.out.println(act.getKey()+" : "+act.getValue()));
+		
+		// group by price, uses 'mapping' to convert List<Item> to Set<String>
+        Map<BigDecimal, Set<String>> rs =
+                items.stream().collect(
+                        Collectors.groupingBy(Item::getPrice,
+                                Collectors.mapping(Item::getName, Collectors.toSet())
+                        )
+                );
+        System.out.println(rs);
+	}
+
+	private static List<Item> getItems() {
 		List<Item> items= Arrays.asList(
                 new Item("apple", 10, new BigDecimal("9.99")),
                 new Item("banana", 20, new BigDecimal("19.99")),
@@ -33,14 +57,6 @@ public class StreamGroupByTest {
                 new Item("apple", 10, new BigDecimal("9.99")),
                 new Item("banana", 10, new BigDecimal("19.99")),
                 new Item("apple", 20, new BigDecimal("9.99")));
-		Map<String, Long> counting = items.stream().collect(Collectors.groupingBy(Item::getName,Collectors.counting()));
-		counting.entrySet().forEach(act->System.out.println(act.getKey()+" : "+act.getValue()));
-		
-		Map<String, Integer> sum = items.stream().collect(Collectors.groupingBy(Item::getName,Collectors.summingInt(Item::getQty)));
-		sum.entrySet().forEach(act->System.out.println(act.getKey()+" : "+act.getValue()));
-		
-		Map<BigDecimal, List<Item>> collect = items.stream().collect(Collectors.groupingBy(Item::getPrice));
-		collect.entrySet().forEach(act->System.out.println(act.getKey()+" : "+act.getValue()));
-		
+		return items;
 	}
 }
