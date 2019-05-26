@@ -27,7 +27,6 @@ public class ArrayToStream {
 		
 		System.out.println("Primitive Stream.of Example With IntStream Class: ");
 		Stream<int[]> temp = Stream.of(intArray);
-
 		temp.flatMapToInt(x->Arrays.stream(x)).forEach(System.out::println);
 	}
 }
